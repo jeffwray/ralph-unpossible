@@ -218,6 +218,39 @@ Then run in order:
 ./unpossible.sh 40 03-dashboard
 ```
 
+## Testing
+
+### Unit Tests
+
+Run the test suite (no API calls):
+
+```bash
+./test/run-tests.sh
+```
+
+Tests verify (47 tests):
+- Quote file and random selection
+- PRD example structure and validation
+- CLAUDE.md instructions
+- Shell script structure
+- Observer server setup
+- Full PRD workflow (create, validate, mark complete)
+
+### End-to-End Test
+
+Run a real loop with Claude (uses API credits):
+
+```bash
+./test/e2e-test.sh
+```
+
+This test:
+1. Creates a temporary project
+2. Initializes Unpossible
+3. Creates a simple PRD (create a text file)
+4. Runs one iteration with Claude
+5. Verifies the task was completed
+
 ## Hat Tip
 
 Inspired by [snarktank/ralph](https://github.com/snarktank/ralph) and the Ralph pattern for autonomous AI development loops.

@@ -132,15 +132,56 @@
       font-family: monospace;
     }
     .tool-event {
-      background: #21262d;
-      border-left: 3px solid #58a6ff;
-      padding: 8px 12px;
-      margin: 4px 0;
-      font-size: 12px;
+      background: #161b22;
+      border-left: 4px solid #58a6ff;
+      padding: 12px 16px;
+      margin: 8px 0;
+      font-size: 13px;
+      border-radius: 0 6px 6px 0;
     }
-    .tool-event.result { border-left-color: #3fb950; }
-    .tool-event .tool-name { color: #58a6ff; font-weight: 600; }
-    .tool-event .tool-input { color: #8b949e; margin-left: 8px; }
+    .tool-event.result {
+      border-left-color: #3fb950;
+      background: #0d1208;
+    }
+    .tool-event.error {
+      border-left-color: #f85149;
+      background: #1a0d0d;
+    }
+    .tool-event .tool-name {
+      color: #58a6ff;
+      font-weight: 700;
+      font-size: 14px;
+      display: inline-block;
+      background: #388bfd26;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    .tool-event .tool-input {
+      color: #c9d1d9;
+      display: block;
+      margin-top: 6px;
+      font-family: 'SF Mono', Monaco, monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .tool-event .tool-preview {
+      color: #8b949e;
+      font-size: 12px;
+      margin-top: 4px;
+      max-height: 100px;
+      overflow: hidden;
+    }
+    .thinking-event {
+      background: #1c1c1c;
+      border-left: 4px solid #8b949e;
+      padding: 10px 16px;
+      margin: 6px 0;
+      font-size: 13px;
+      color: #8b949e;
+      font-style: italic;
+      border-radius: 0 6px 6px 0;
+    }
     .controls {
       padding: 16px 24px;
       background: #161b22;
@@ -251,24 +292,71 @@
       terminal.scrollTop = terminal.scrollHeight;
     }
 
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
     function appendToolEvent(event) {
-      // Handle tool_use events
+      const div = document.createElement('div');
+
+      // Tool use start
       if (event.type === 'content_block_start' && event.content_block?.type === 'tool_use') {
-        const div = document.createElement('div');
         div.className = 'tool-event';
         const toolName = event.content_block.name;
-        div.innerHTML = `<span class="tool-name">${toolName}</span>`;
+        const desc = toolDescriptions[toolName] || '';
+        div.innerHTML = `<span class="tool-name">${toolName}</span> ${desc}`;
         terminal.appendChild(div);
       }
-      // Handle tool results
-      if (event.type === 'result' && event.subtype === 'tool_result') {
-        const div = document.createElement('div');
+      // Tool result
+      else if (event.type === 'result' && event.subtype === 'tool_result') {
         div.className = 'tool-event result';
-        const preview = typeof event.result === 'string'
-          ? event.result.substring(0, 100)
-          : JSON.stringify(event.result).substring(0, 100);
-        div.innerHTML = `<span class="tool-name">Result</span><span class="tool-input">${preview}...</span>`;
+        let preview = typeof event.result === 'string'
+          ? event.result.substring(0, 300)
+          : JSON.stringify(event.result || '').substring(0, 300);
+        div.innerHTML = `<span class="tool-name" style="background: #23863626; color: #3fb950;">Done</span>
+          <div class="tool-preview">${escapeHtml(preview)}</div>`;
         terminal.appendChild(div);
+      }
+      // Tool invocation with input
+      else if (event.type === 'result' && event.subtype === 'tool_use') {
+        div.className = 'tool-event';
+        const toolName = event.tool || 'Tool';
+        const desc = toolDescriptions[toolName] || '';
+        let inputStr = '';
+        if (event.input) {
+          if (event.input.file_path) inputStr = event.input.file_path;
+          else if (event.input.command) inputStr = event.input.command;
+          else if (event.input.pattern) inputStr = event.input.pattern;
+          else inputStr = JSON.stringify(event.input).substring(0, 200);
+        }
+        div.innerHTML = `<span class="tool-name">${toolName}</span> ${desc}
+          ${inputStr ? `<div class="tool-input">${escapeHtml(inputStr)}</div>` : ''}`;
+        terminal.appendChild(div);
+      }
+      // Text output from Claude
+      else if (event.type === 'content_block_delta' && event.delta?.text) {
+        div.className = 'thinking-event';
+        div.textContent = event.delta.text;
+        terminal.appendChild(div);
+      }
+      // Fallback: show any event with a tool or useful info
+      else if (event.tool || event.content_block?.name) {
+        div.className = 'tool-event';
+        const toolName = event.tool || event.content_block?.name || 'Event';
+        const desc = toolDescriptions[toolName] || '';
+        let details = '';
+        if (event.input?.file_path) details = event.input.file_path;
+        else if (event.input?.command) details = event.input.command;
+        else if (event.input) details = JSON.stringify(event.input).substring(0, 150);
+        div.innerHTML = `<span class="tool-name">${toolName}</span> ${desc}
+          ${details ? `<div class="tool-input">${escapeHtml(details)}</div>` : ''}`;
+        terminal.appendChild(div);
+      }
+
+      if (div.innerHTML) {
+        terminal.scrollTop = terminal.scrollHeight;
       }
     }
 
@@ -346,7 +434,54 @@
     evtSource.addEventListener('action', (e) => {
       const action = JSON.parse(e.data);
       updateAction(action);
+      // Also show in main terminal
+      appendActionToTerminal(action);
     });
+
+    evtSource.addEventListener('claude_event', (e) => {
+      const event = JSON.parse(e.data);
+      appendToolEvent(event);
+    });
+
+    function appendActionToTerminal(action) {
+      const div = document.createElement('div');
+
+      if (action.type === 'tool' || action.type === 'tool_start') {
+        div.className = 'tool-event';
+        const toolName = action.tool || 'Tool';
+        const desc = toolDescriptions[toolName] || '';
+        let inputStr = '';
+        if (action.input) {
+          if (action.input.file_path) inputStr = action.input.file_path;
+          else if (action.input.command) inputStr = action.input.command;
+          else if (action.input.pattern) inputStr = action.input.pattern;
+          else inputStr = JSON.stringify(action.input).substring(0, 200);
+        }
+        div.innerHTML = `<span class="tool-name">${toolName}</span> ${desc}
+          ${inputStr ? `<div class="tool-input">${escapeHtml(inputStr)}</div>` : ''}`;
+        terminal.appendChild(div);
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+      else if (action.type === 'tool_result') {
+        div.className = 'tool-event result';
+        let preview = '';
+        if (action.result) {
+          preview = typeof action.result === 'string'
+            ? action.result.substring(0, 200)
+            : JSON.stringify(action.result).substring(0, 200);
+        }
+        div.innerHTML = `<span class="tool-name" style="background: #23863626; color: #3fb950;">Done</span>
+          ${preview ? `<div class="tool-preview">${escapeHtml(preview)}</div>` : ''}`;
+        terminal.appendChild(div);
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+      else if (action.type === 'thinking' && action.text) {
+        div.className = 'thinking-event';
+        div.textContent = action.text;
+        terminal.appendChild(div);
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    }
 
     evtSource.addEventListener('exit', (e) => {
       const { code } = JSON.parse(e.data);
@@ -372,7 +507,9 @@
       terminal.innerHTML = '';
     });
 
+    // Load PRDs initially and refresh periodically during runs
     loadPRDs();
+    setInterval(loadPRDs, 5000);  // Refresh every 5 seconds to catch story updates
   </script>
 </body>
 </html>

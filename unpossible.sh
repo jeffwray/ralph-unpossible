@@ -251,9 +251,9 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   if [[ "$TOOL" == "amp" ]]; then
     OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | amp --dangerously-allow-all 2>&1 | tee /dev/stderr) || true
   else
-    # Use stream-json for real-time output visibility, capture to temp file for completion check
+    # Run Claude with the CLAUDE.md as input, streaming JSON output for Observer
     TEMP_OUTPUT=$(mktemp)
-    claude --dangerously-skip-permissions --output-format stream-json < "$SCRIPT_DIR/CLAUDE.md" 2>&1 | tee "$TEMP_OUTPUT" || true
+    echo "$(cat "$SCRIPT_DIR/CLAUDE.md")" | claude --dangerously-skip-permissions --verbose --output-format stream-json 2>&1 | tee "$TEMP_OUTPUT" || true
     OUTPUT=$(cat "$TEMP_OUTPUT")
     rm -f "$TEMP_OUTPUT"
   fi

@@ -3,6 +3,10 @@
 progress.txt
 node_modules/
 
+# Test artifacts
+test/tmp/
+test/e2e-project/
+
 # OS files
 .DS_Store
 

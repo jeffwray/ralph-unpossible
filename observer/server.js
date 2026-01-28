@@ -70,9 +70,11 @@ function parseOutput(text) {
 }
 
 function parseClaudeEvent(event) {
-  // Handle different Claude stream-json event types
+  // Broadcast all events to frontend for detailed display
+  broadcast('claude_event', event);
+
+  // Handle different Claude stream-json event types for sidebar status
   if (event.type === 'assistant') {
-    // Assistant message chunk
     if (event.message?.content) {
       for (const block of event.message.content) {
         if (block.type === 'tool_use') {
@@ -95,15 +97,17 @@ function parseClaudeEvent(event) {
     if (event.content_block?.type === 'tool_use') {
       unpossibleState.currentAction = {
         type: 'tool_start',
-        tool: event.content_block.name
+        tool: event.content_block.name,
+        id: event.content_block.id
       };
       broadcast('action', unpossibleState.currentAction);
     }
   } else if (event.type === 'result') {
-    // Tool result
     unpossibleState.currentAction = {
       type: 'tool_result',
       subtype: event.subtype,
+      tool: event.tool,
+      input: event.input,
       result: typeof event.result === 'string' ? event.result?.substring(0, 500) : event.result
     };
     broadcast('action', unpossibleState.currentAction);
