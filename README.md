@@ -2,9 +2,21 @@
 
 > "Me fail English? That's unpossible!" — Ralph Wiggum
 
-[![Ralph Wiggum - That's Unpossible](https://img.youtube.com/vi/JXFGy10b7Js/0.jpg)](https://www.youtube.com/watch?v=JXFGy10b7Js)
-
 An autonomous AI agent loop for iterative, PRD-driven development. Spawns fresh AI coding instances to implement user stories one at a time until completion.
+
+![Unpossible Observer](docs/observer-screenshot.png)
+
+*The Unpossible Observer showing real-time AI activity as it autonomously implements user stories*
+
+---
+
+**Don't know who Ralph is?** You're missing out on one of television's greatest philosophical minds. Witness the moment that inspired this project's name:
+
+[![Watch: "That's Unpossible!"](https://img.youtube.com/vi/JXFGy10b7Js/0.jpg)](https://www.youtube.com/watch?v=JXFGy10b7Js)
+
+*Click to watch the 10-second clip that launched a thousand memes*
+
+---
 
 ## Installation
 
