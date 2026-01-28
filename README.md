@@ -48,44 +48,29 @@ This creates:
 
 ## Creating PRDs
 
-### From a feature idea (recommended)
-
-Have Claude help you build a PRD from a simple description:
+After running `--init`, Claude already knows the PRD format. Just ask:
 
 ```bash
-# Using Claude Code
-claude "Read scripts/unpossible/prd.json.example and help me create a PRD for: [your feature description]"
-
-# Or with a markdown doc
-claude "Read scripts/unpossible/prd.json.example and my-feature-spec.md, then create a PRD JSON file"
+claude "Create a PRD for user authentication with OAuth"
 ```
 
-### From an existing markdown spec
+Or from an existing spec:
 
 ```bash
-claude "Convert docs/my-feature.md into a PRD following the format in scripts/unpossible/prd.json.example. Save it to scripts/unpossible/prds/my-feature.json"
+claude "Create a PRD from docs/my-feature.md"
 ```
 
-### PRD Generator Prompt
-
-You can also use the built-in PRD generator:
+Or with more detail:
 
 ```bash
-./scripts/unpossible/generate-prd.sh "Add user authentication with OAuth"
+claude "Create a PRD for:
+- Dark mode toggle in settings
+- Persist preference to localStorage
+- Respect system preference by default
+- All components support both themes"
 ```
 
-Or for more detail:
-
-```bash
-./scripts/unpossible/generate-prd.sh "$(cat << 'EOF'
-Add a dark mode toggle to the app:
-- Toggle should be in the settings page
-- Should persist preference to localStorage
-- Should respect system preference by default
-- All components need to support both themes
-EOF
-)"
-```
+Claude will automatically create the JSON file in `scripts/unpossible/prds/`.
 
 ## Running
 

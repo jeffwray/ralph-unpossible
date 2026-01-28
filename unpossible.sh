@@ -36,6 +36,17 @@ Key files:
 - `scripts/unpossible/patterns.txt` - Codebase patterns (read first)
 - `scripts/unpossible/progress.txt` - Run progress log
 
+## Creating PRDs
+
+When asked to create a PRD, read `scripts/unpossible/prd.json.example` for the format, then save the new PRD to `scripts/unpossible/prds/[feature-name].json`.
+
+Guidelines:
+- Break features into small stories (one iteration each)
+- Use descriptive IDs (AUTH-001, UI-001, API-001)
+- Priority 1 = done first, higher numbers = later
+- Acceptance criteria should be specific and testable
+- Add technicalNotes to guide implementation
+
 ## Development
 
 - Follow TDD: Write tests FIRST, then implement

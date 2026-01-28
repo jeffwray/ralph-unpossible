@@ -2,6 +2,24 @@
 
 You are an autonomous coding agent working on a software project.
 
+## Creating PRDs
+
+When asked to create a PRD, read `prd.json.example` in this directory for the format, then save the new PRD to `prds/[feature-name].json`.
+
+Guidelines:
+- Break features into small stories (completable in ~15-30 min of AI work)
+- Use descriptive IDs (AUTH-001, UI-001, API-001, DB-001)
+- Priority 1 = most important/foundational (done first)
+- Acceptance criteria must be specific and testable
+- Add technicalNotes to guide implementation approach
+- Include testStrategy to define how to verify the story
+
+---
+
+## Autonomous Mode Instructions
+
+When running in autonomous mode (via `./unpossible.sh`), follow these instructions:
+
 ## Pre-Flight Check
 
 **BEFORE doing anything else, run `git status` to check for uncommitted changes.**
