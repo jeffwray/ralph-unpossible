@@ -1,0 +1,25 @@
+{
+  "project": "MyProject",
+  "branchName": "unpossible/feature-name",
+  "baseBranch": "main",
+  "description": "Description of the work for this PRD",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Example user story",
+      "priority": 1,
+      "passes": false,
+      "acceptanceCriteria": [
+        "First acceptance criterion",
+        "Second acceptance criterion",
+        "Third acceptance criterion"
+      ],
+      "progress": {
+        "completedAt": null,
+        "filesChanged": [],
+        "summary": "",
+        "learnings": ""
+      }
+    }
+  ]
+}

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unpossible Observer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #161b22;
+      padding: 16px 24px;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h1 { font-size: 20px; color: #58a6ff; }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #484f58;
+    }
+    .status-dot.running { background: #f0883e; animation: pulse 1s infinite; }
+    .status-dot.complete { background: #3fb950; }
+    .status-dot.error { background: #f85149; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .progress-bar {
+      width: 200px;
+      height: 8px;
+      background: #21262d;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #58a6ff;
+      transition: width 0.3s;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    .terminal {
+      flex: 1;
+      background: #0d1117;
+      padding: 16px;
+      overflow-y: auto;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .terminal pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .stdout { color: #c9d1d9; }
+    .stderr { color: #f85149; }
+    .highlight { color: #58a6ff; }
+    .success { color: #3fb950; }
+    .warning { color: #f0883e; }
+    .sidebar {
+      width: 320px;
+      background: #161b22;
+      border-left: 1px solid #30363d;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      font-size: 14px;
+      color: #8b949e;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    .story {
+      background: #21262d;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 8px;
+      border-left: 3px solid #484f58;
+    }
+    .story.complete { border-left-color: #3fb950; }
+    .story.in-progress { border-left-color: #f0883e; }
+    .story-id { font-size: 12px; color: #8b949e; }
+    .story-title { font-size: 14px; margin-top: 4px; }
+    .current-action {
+      background: #1c2128;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .current-action h3 {
+      font-size: 11px;
+      color: #8b949e;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .action-tool {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .action-tool-name {
+      background: #388bfd26;
+      color: #58a6ff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .action-tool-input {
+      font-size: 11px;
+      color: #8b949e;
+      margin-top: 8px;
+      max-height: 60px;
+      overflow: hidden;
+      font-family: monospace;
+    }
+    .tool-event {
+      background: #21262d;
+      border-left: 3px solid #58a6ff;
+      padding: 8px 12px;
+      margin: 4px 0;
+      font-size: 12px;
+    }
+    .tool-event.result { border-left-color: #3fb950; }
+    .tool-event .tool-name { color: #58a6ff; font-weight: 600; }
+    .tool-event .tool-input { color: #8b949e; margin-left: 8px; }
+    .controls {
+      padding: 16px 24px;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      display: flex;
+      gap: 12px;
+    }
+    button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #21262d;
+      color: #c9d1d9;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: #30363d; }
+    button.primary { background: #238636; border-color: #238636; }
+    button.primary:hover { background: #2ea043; }
+    button.danger { background: #da3633; border-color: #da3633; }
+    button.danger:hover { background: #f85149; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Unpossible Observer</h1>
+    <div class="status">
+      <span id="status-text">Idle</span>
+      <div class="status-dot" id="status-dot"></div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+      <span id="iteration-text">0/0</span>
+    </div>
+  </header>
+  <main>
+    <div class="terminal" id="terminal"></div>
+    <div class="sidebar">
+      <div class="current-action" id="current-action" style="display: none;">
+        <h3>Claude is...</h3>
+        <div id="action-content"></div>
+      </div>
+      <h2>Current Branch</h2>
+      <p id="branch-name" style="margin-bottom: 16px; color: #58a6ff;">-</p>
+      <h2>User Stories</h2>
+      <div id="stories"></div>
+    </div>
+  </main>
+  <div class="controls">
+    <button class="primary" id="start-btn">Start Unpossible</button>
+    <button class="danger" id="stop-btn">Stop</button>
+    <button id="clear-btn">Clear Output</button>
+  </div>
+
+  <script>
+    const terminal = document.getElementById('terminal');
+    const statusText = document.getElementById('status-text');
+    const statusDot = document.getElementById('status-dot');
+    const progressFill = document.getElementById('progress-fill');
+    const iterationText = document.getElementById('iteration-text');
+    const branchName = document.getElementById('branch-name');
+    const storiesDiv = document.getElementById('stories');
+    const startBtn = document.getElementById('start-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const currentActionDiv = document.getElementById('current-action');
+    const actionContent = document.getElementById('action-content');
+
+    const toolDescriptions = {
+      'Read': 'Reading file',
+      'Write': 'Writing file',
+      'Edit': 'Editing file',
+      'Bash': 'Running command',
+      'Glob': 'Searching files',
+      'Grep': 'Searching content',
+      'Task': 'Running agent',
+      'TodoWrite': 'Updating tasks'
+    };
+
+    function formatOutput(text) {
+      return text
+        .replace(/Unpossible Iteration \d+ of \d+/g, '<span class="highlight">$&</span>')
+        .replace(/PASS/g, '<span class="success">PASS</span>')
+        .replace(/FAIL/g, '<span class="warning">FAIL</span>')
+        .replace(/Error:/g, '<span class="stderr">Error:</span>')
+        .replace(/feat:/g, '<span class="success">feat:</span>');
+    }
+
+    function appendOutput(type, text) {
+      // Try to parse JSON events from stream-json output
+      const lines = text.split('\n');
+      for (const line of lines) {
+        if (line.trim().startsWith('{')) {
+          try {
+            const event = JSON.parse(line);
+            appendToolEvent(event);
+            continue;
+          } catch (e) {}
+        }
+        // Regular text output
+        if (line.trim()) {
+          const pre = document.createElement('pre');
+          pre.className = type;
+          pre.innerHTML = formatOutput(line);
+          terminal.appendChild(pre);
+        }
+      }
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function appendToolEvent(event) {
+      // Handle tool_use events
+      if (event.type === 'content_block_start' && event.content_block?.type === 'tool_use') {
+        const div = document.createElement('div');
+        div.className = 'tool-event';
+        const toolName = event.content_block.name;
+        div.innerHTML = `<span class="tool-name">${toolName}</span>`;
+        terminal.appendChild(div);
+      }
+      // Handle tool results
+      if (event.type === 'result' && event.subtype === 'tool_result') {
+        const div = document.createElement('div');
+        div.className = 'tool-event result';
+        const preview = typeof event.result === 'string'
+          ? event.result.substring(0, 100)
+          : JSON.stringify(event.result).substring(0, 100);
+        div.innerHTML = `<span class="tool-name">Result</span><span class="tool-input">${preview}...</span>`;
+        terminal.appendChild(div);
+      }
+    }
+
+    function updateAction(action) {
+      currentActionDiv.style.display = 'block';
+      if (action.type === 'tool' || action.type === 'tool_start') {
+        const desc = toolDescriptions[action.tool] || action.tool;
+        let inputPreview = '';
+        if (action.input) {
+          if (action.input.file_path) inputPreview = action.input.file_path;
+          else if (action.input.command) inputPreview = action.input.command.substring(0, 50);
+          else if (action.input.pattern) inputPreview = action.input.pattern;
+        }
+        actionContent.innerHTML = `
+          <div class="action-tool">
+            <span class="action-tool-name">${action.tool}</span>
+            <span>${desc}</span>
+          </div>
+          ${inputPreview ? `<div class="action-tool-input">${inputPreview}</div>` : ''}
+        `;
+      } else if (action.type === 'thinking') {
+        actionContent.innerHTML = `<div style="color: #8b949e; font-style: italic;">${action.text || 'Thinking...'}</div>`;
+      } else if (action.type === 'tool_result') {
+        actionContent.innerHTML = `<div style="color: #3fb950;">✓ Tool completed</div>`;
+      }
+    }
+
+    function updateState(state) {
+      statusText.textContent = state.status.charAt(0).toUpperCase() + state.status.slice(1);
+      statusDot.className = 'status-dot ' + state.status;
+
+      if (state.maxIterations > 0) {
+        const pct = (state.iteration / state.maxIterations) * 100;
+        progressFill.style.width = pct + '%';
+        iterationText.textContent = `${state.iteration}/${state.maxIterations}`;
+      }
+
+      if (state.branch) {
+        branchName.textContent = state.branch;
+      }
+    }
+
+    async function loadPRDs() {
+      try {
+        const res = await fetch('/api/prds');
+        const prds = await res.json();
+        storiesDiv.innerHTML = '';
+        prds.forEach(prd => {
+          if (prd.userStories) {
+            prd.userStories.forEach(story => {
+              const div = document.createElement('div');
+              div.className = 'story' + (story.passes ? ' complete' : '');
+              div.innerHTML = `
+                <div class="story-id">${story.id}</div>
+                <div class="story-title">${story.title}</div>
+              `;
+              storiesDiv.appendChild(div);
+            });
+          }
+        });
+      } catch (e) {}
+    }
+
+    const evtSource = new EventSource('/events');
+
+    evtSource.addEventListener('state', (e) => {
+      updateState(JSON.parse(e.data));
+    });
+
+    evtSource.addEventListener('output', (e) => {
+      const { type, text } = JSON.parse(e.data);
+      appendOutput(type, text);
+    });
+
+    evtSource.addEventListener('action', (e) => {
+      const action = JSON.parse(e.data);
+      updateAction(action);
+    });
+
+    evtSource.addEventListener('exit', (e) => {
+      const { code } = JSON.parse(e.data);
+      appendOutput('stdout', `\n[Process exited with code ${code}]\n`);
+    });
+
+    startBtn.addEventListener('click', async () => {
+      const args = prompt('Enter Unpossible arguments (e.g., "50 01-foundation"):', '01-foundation');
+      if (args !== null) {
+        await fetch('/api/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ args: args.split(' ').filter(Boolean) })
+        });
+      }
+    });
+
+    stopBtn.addEventListener('click', async () => {
+      await fetch('/api/stop', { method: 'POST' });
+    });
+
+    clearBtn.addEventListener('click', () => {
+      terminal.innerHTML = '';
+    });
+
+    loadPRDs();
+  </script>
+</body>
+</html>

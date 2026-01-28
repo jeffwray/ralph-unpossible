@@ -1,0 +1,12 @@
+# Runtime files
+.prd-files
+progress.txt
+node_modules/
+
+# OS files
+.DS_Store
+
+# Editor files
+*.swp
+*.swo
+*~
