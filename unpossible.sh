@@ -7,6 +7,18 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Display a random Ralph quote
+show_quote() {
+  if [[ -f "$SCRIPT_DIR/quotes.txt" ]]; then
+    local quote
+    quote=$(shuf -n 1 "$SCRIPT_DIR/quotes.txt" 2>/dev/null || sort -R "$SCRIPT_DIR/quotes.txt" | head -1)
+    echo ""
+    echo "  \"$quote\""
+    echo "      — Ralph Wiggum"
+    echo ""
+  fi
+}
+
 # Initialize project function
 init_project() {
   echo "Initializing Unpossible for project..."
@@ -185,6 +197,8 @@ printf '%s\n' "${PRD_FILES[@]}" > "$SCRIPT_DIR/.prd-files"
 # Extract branch info from first PRD
 BRANCH_NAME=$(jq -r '.branchName // empty' "${PRD_FILES[0]}" 2>/dev/null || echo "")
 BASE_BRANCH=$(jq -r '.baseBranch // "main"' "${PRD_FILES[0]}" 2>/dev/null || echo "main")
+
+show_quote
 
 echo "Target branch: $BRANCH_NAME"
 echo "Base branch: $BASE_BRANCH"

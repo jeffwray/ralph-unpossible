@@ -179,9 +179,9 @@ Run without observer: `./unpossible.sh --no-observe [args]`
 | File | Purpose |
 |------|---------|
 | `unpossible.sh` | Main runner script |
-| `generate-prd.sh` | PRD generator helper |
 | `CLAUDE.md` | Agent instructions |
 | `patterns.txt` | Persistent codebase patterns |
+| `quotes.txt` | Ralph Wiggum quotes (displayed on startup) |
 | `progress.txt` | Per-run progress log (created during runs) |
 | `prds/` | PRD files directory |
 | `observer/` | Web UI for monitoring |
