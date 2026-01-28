@@ -5,49 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unpossible Observer</title>
   <style>
+    /* Unpossible color palette - a totally original yellow theme */
+    :root {
+      --unpossible-yellow: #FED90F;
+      --unpossible-blue: #70D1FE;
+      --unpossible-orange: #F14E28;
+      --unpossible-brown: #5C4033;
+      --unpossible-pink: #FF6B9D;
+      --unpossible-sky: #87CEEB;
+      --bg-dark: #1a1a2e;
+      --bg-darker: #0f0f1a;
+      --bg-panel: #252541;
+      --text-primary: #FED90F;
+      --text-secondary: #87CEEB;
+      --border-color: #3d3d5c;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-      background: #0d1117;
-      color: #c9d1d9;
+      font-family: 'Comic Sans MS', 'Chalkboard', -apple-system, sans-serif;
+      background: var(--bg-darker);
+      color: var(--text-secondary);
       height: 100vh;
       display: flex;
       flex-direction: column;
     }
     header {
-      background: #161b22;
+      background: var(--bg-dark);
       padding: 16px 24px;
-      border-bottom: 1px solid #30363d;
+      border-bottom: 3px solid var(--unpossible-yellow);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    h1 { font-size: 20px; color: #58a6ff; }
+    h1 {
+      font-size: 24px;
+      color: var(--unpossible-yellow);
+      text-shadow: 2px 2px 0 var(--unpossible-orange);
+      letter-spacing: 1px;
+    }
     .status {
       display: flex;
       align-items: center;
       gap: 12px;
     }
     .status-dot {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: #484f58;
+      border: 2px solid var(--unpossible-yellow);
     }
-    .status-dot.running { background: #f0883e; animation: pulse 1s infinite; }
+    .status-dot.running { background: var(--unpossible-orange); animation: pulse 1s infinite; }
     .status-dot.complete { background: #3fb950; }
     .status-dot.error { background: #f85149; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     .progress-bar {
       width: 200px;
-      height: 8px;
-      background: #21262d;
-      border-radius: 4px;
+      height: 10px;
+      background: var(--bg-panel);
+      border-radius: 5px;
       overflow: hidden;
+      border: 2px solid var(--unpossible-yellow);
     }
     .progress-fill {
       height: 100%;
-      background: #58a6ff;
+      background: linear-gradient(90deg, var(--unpossible-yellow), var(--unpossible-orange));
       transition: width 0.3s;
     }
     main {
@@ -57,7 +79,7 @@
     }
     .terminal {
       flex: 1;
-      background: #0d1117;
+      background: var(--bg-darker);
       padding: 16px;
       overflow-y: auto;
       font-family: 'SF Mono', Monaco, 'Courier New', monospace;
@@ -68,45 +90,46 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
-    .stdout { color: #c9d1d9; }
-    .stderr { color: #f85149; }
-    .highlight { color: #58a6ff; }
+    .stdout { color: var(--text-secondary); }
+    .stderr { color: var(--unpossible-orange); }
+    .highlight { color: var(--unpossible-yellow); }
     .success { color: #3fb950; }
-    .warning { color: #f0883e; }
+    .warning { color: var(--unpossible-orange); }
     .sidebar {
       width: 320px;
-      background: #161b22;
-      border-left: 1px solid #30363d;
+      background: var(--bg-dark);
+      border-left: 3px solid var(--unpossible-yellow);
       padding: 16px;
       overflow-y: auto;
     }
     .sidebar h2 {
       font-size: 14px;
-      color: #8b949e;
+      color: var(--unpossible-yellow);
       margin-bottom: 12px;
       text-transform: uppercase;
+      letter-spacing: 1px;
     }
     .story {
-      background: #21262d;
-      border-radius: 6px;
+      background: var(--bg-panel);
+      border-radius: 8px;
       padding: 12px;
       margin-bottom: 8px;
-      border-left: 3px solid #484f58;
+      border-left: 4px solid #484f58;
     }
-    .story.complete { border-left-color: #3fb950; }
-    .story.in-progress { border-left-color: #f0883e; }
-    .story-id { font-size: 12px; color: #8b949e; }
-    .story-title { font-size: 14px; margin-top: 4px; }
+    .story.complete { border-left-color: #3fb950; background: rgba(63, 185, 80, 0.1); }
+    .story.in-progress { border-left-color: var(--unpossible-orange); }
+    .story-id { font-size: 12px; color: var(--unpossible-blue); }
+    .story-title { font-size: 14px; margin-top: 4px; color: var(--text-secondary); }
     .current-action {
-      background: #1c2128;
-      border: 1px solid #30363d;
-      border-radius: 6px;
+      background: var(--bg-panel);
+      border: 2px solid var(--unpossible-yellow);
+      border-radius: 8px;
       padding: 12px;
       margin-bottom: 16px;
     }
     .current-action h3 {
       font-size: 11px;
-      color: #8b949e;
+      color: var(--unpossible-yellow);
       text-transform: uppercase;
       margin-bottom: 8px;
     }
@@ -116,8 +139,8 @@
       gap: 8px;
     }
     .action-tool-name {
-      background: #388bfd26;
-      color: #58a6ff;
+      background: rgba(254, 217, 15, 0.2);
+      color: var(--unpossible-yellow);
       padding: 4px 8px;
       border-radius: 4px;
       font-size: 12px;
@@ -125,40 +148,40 @@
     }
     .action-tool-input {
       font-size: 11px;
-      color: #8b949e;
+      color: var(--text-secondary);
       margin-top: 8px;
       max-height: 60px;
       overflow: hidden;
       font-family: monospace;
     }
     .tool-event {
-      background: #161b22;
-      border-left: 4px solid #58a6ff;
+      background: var(--bg-dark);
+      border-left: 4px solid var(--unpossible-blue);
       padding: 12px 16px;
       margin: 8px 0;
       font-size: 13px;
-      border-radius: 0 6px 6px 0;
+      border-radius: 0 8px 8px 0;
     }
     .tool-event.result {
       border-left-color: #3fb950;
-      background: #0d1208;
+      background: rgba(63, 185, 80, 0.1);
     }
     .tool-event.error {
-      border-left-color: #f85149;
-      background: #1a0d0d;
+      border-left-color: var(--unpossible-orange);
+      background: rgba(241, 78, 40, 0.1);
     }
     .tool-event .tool-name {
-      color: #58a6ff;
+      color: var(--unpossible-yellow);
       font-weight: 700;
       font-size: 14px;
       display: inline-block;
-      background: #388bfd26;
+      background: rgba(254, 217, 15, 0.2);
       padding: 2px 8px;
       border-radius: 4px;
       margin-right: 8px;
     }
     .tool-event .tool-input {
-      color: #c9d1d9;
+      color: var(--text-secondary);
       display: block;
       margin-top: 6px;
       font-family: 'SF Mono', Monaco, monospace;
@@ -166,43 +189,22 @@
       word-break: break-all;
     }
     .tool-event .tool-preview {
-      color: #8b949e;
+      color: var(--unpossible-blue);
       font-size: 12px;
       margin-top: 4px;
       max-height: 100px;
       overflow: hidden;
     }
     .thinking-event {
-      background: #1c1c1c;
-      border-left: 4px solid #8b949e;
+      background: rgba(254, 217, 15, 0.05);
+      border-left: 4px solid var(--unpossible-pink);
       padding: 10px 16px;
       margin: 6px 0;
       font-size: 13px;
-      color: #8b949e;
+      color: var(--unpossible-pink);
       font-style: italic;
-      border-radius: 0 6px 6px 0;
+      border-radius: 0 8px 8px 0;
     }
-    .controls {
-      padding: 16px 24px;
-      background: #161b22;
-      border-top: 1px solid #30363d;
-      display: flex;
-      gap: 12px;
-    }
-    button {
-      padding: 8px 16px;
-      border-radius: 6px;
-      border: 1px solid #30363d;
-      background: #21262d;
-      color: #c9d1d9;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    button:hover { background: #30363d; }
-    button.primary { background: #238636; border-color: #238636; }
-    button.primary:hover { background: #2ea043; }
-    button.danger { background: #da3633; border-color: #da3633; }
-    button.danger:hover { background: #f85149; }
   </style>
 </head>
 <body>
@@ -230,11 +232,6 @@
       <div id="stories"></div>
     </div>
   </main>
-  <div class="controls">
-    <button class="primary" id="start-btn">Start Unpossible</button>
-    <button class="danger" id="stop-btn">Stop</button>
-    <button id="clear-btn">Clear Output</button>
-  </div>
 
   <script>
     const terminal = document.getElementById('terminal');
@@ -244,9 +241,6 @@
     const iterationText = document.getElementById('iteration-text');
     const branchName = document.getElementById('branch-name');
     const storiesDiv = document.getElementById('stories');
-    const startBtn = document.getElementById('start-btn');
-    const stopBtn = document.getElementById('stop-btn');
-    const clearBtn = document.getElementById('clear-btn');
     const currentActionDiv = document.getElementById('current-action');
     const actionContent = document.getElementById('action-content');
 
@@ -443,6 +437,42 @@
       appendToolEvent(event);
     });
 
+    function formatToolInput(toolName, input) {
+      if (!input) return '';
+
+      // Special formatting for specific tools
+      if (toolName === 'TodoWrite' && input.todos) {
+        return input.todos.map(t =>
+          `  ${t.status === 'completed' ? '✓' : t.status === 'in_progress' ? '→' : '○'} ${t.content}`
+        ).join('\n');
+      }
+      if (toolName === 'Edit' && input.file_path) {
+        let str = input.file_path;
+        if (input.old_string) str += `\n  - "${input.old_string.substring(0, 50)}..."`;
+        if (input.new_string) str += `\n  + "${input.new_string.substring(0, 50)}..."`;
+        return str;
+      }
+      if (input.file_path) return input.file_path;
+      if (input.command) return input.command;
+      if (input.pattern) return `pattern: ${input.pattern}`;
+      if (input.query) return `query: ${input.query}`;
+      if (input.prompt) return input.prompt.substring(0, 150);
+
+      // For other JSON, pretty print with limited depth
+      try {
+        const simplified = {};
+        for (const [k, v] of Object.entries(input)) {
+          if (typeof v === 'string') simplified[k] = v.length > 80 ? v.substring(0, 80) + '...' : v;
+          else if (Array.isArray(v)) simplified[k] = `[${v.length} items]`;
+          else if (typeof v === 'object' && v) simplified[k] = '{...}';
+          else simplified[k] = v;
+        }
+        return JSON.stringify(simplified, null, 2);
+      } catch (e) {
+        return JSON.stringify(input).substring(0, 200);
+      }
+    }
+
     function appendActionToTerminal(action) {
       const div = document.createElement('div');
 
@@ -450,13 +480,7 @@
         div.className = 'tool-event';
         const toolName = action.tool || 'Tool';
         const desc = toolDescriptions[toolName] || '';
-        let inputStr = '';
-        if (action.input) {
-          if (action.input.file_path) inputStr = action.input.file_path;
-          else if (action.input.command) inputStr = action.input.command;
-          else if (action.input.pattern) inputStr = action.input.pattern;
-          else inputStr = JSON.stringify(action.input).substring(0, 200);
-        }
+        const inputStr = formatToolInput(toolName, action.input);
         div.innerHTML = `<span class="tool-name">${toolName}</span> ${desc}
           ${inputStr ? `<div class="tool-input">${escapeHtml(inputStr)}</div>` : ''}`;
         terminal.appendChild(div);
@@ -468,7 +492,7 @@
         if (action.result) {
           preview = typeof action.result === 'string'
             ? action.result.substring(0, 200)
-            : JSON.stringify(action.result).substring(0, 200);
+            : JSON.stringify(action.result, null, 2).substring(0, 200);
         }
         div.innerHTML = `<span class="tool-name" style="background: #23863626; color: #3fb950;">Done</span>
           ${preview ? `<div class="tool-preview">${escapeHtml(preview)}</div>` : ''}`;
@@ -486,25 +510,6 @@
     evtSource.addEventListener('exit', (e) => {
       const { code } = JSON.parse(e.data);
       appendOutput('stdout', `\n[Process exited with code ${code}]\n`);
-    });
-
-    startBtn.addEventListener('click', async () => {
-      const args = prompt('Enter Unpossible arguments (e.g., "50 01-foundation"):', '01-foundation');
-      if (args !== null) {
-        await fetch('/api/start', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ args: args.split(' ').filter(Boolean) })
-        });
-      }
-    });
-
-    stopBtn.addEventListener('click', async () => {
-      await fetch('/api/stop', { method: 'POST' });
-    });
-
-    clearBtn.addEventListener('click', () => {
-      terminal.innerHTML = '';
     });
 
     // Load PRDs initially and refresh periodically during runs

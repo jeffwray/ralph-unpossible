@@ -258,3 +258,15 @@ Inspired by [snarktank/ralph](https://github.com/snarktank/ralph) and the Ralph 
 ## License
 
 MIT
+
+---
+
+<p align="center">
+<img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/aa/TheSimpsons-Ralph_Wiggum.png/220px-TheSimpsons-Ralph_Wiggum.png" width="80" alt="Definitely Not Ralph">
+</p>
+
+<p align="center"><sub>
+<b>DISCLAIMER:</b> All characters, quotes, color schemes, and references in this project are entirely coincidental and bear absolutely no resemblance to any animated television series that may or may not have been on the air since 1989. The yellow color palette was chosen because it pairs well with terminal backgrounds. Any similarity to residents of a certain nuclear-powered town in an unspecified state is purely a statistical anomaly. The phrase "That's unpossible" is a completely original grammatical innovation. We have never heard of "The Simpsons" and if we had, our lawyers would like to remind you that parody is protected speech. Me fail copyright? That's unpossible!
+<br><br>
+<b>META DISCLAIMER:</b> This entire project—including the totally original yellow color scheme, this disclaimer, and everything else—was built autonomously by the AI agent technology contained herein. The AI made all creative decisions independently. No human told it to use these specific colors or make these specific references. If you have concerns about any aspect of this project, please direct them to the AI by opening a GitHub issue or submitting a pull request. Good luck.
+</sub></p>
