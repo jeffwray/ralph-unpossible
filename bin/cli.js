@@ -102,7 +102,7 @@ Examples:
   npx ralph-unpossible 20 auth ui api  # 20 iterations on multiple PRDs
   npx ralph-unpossible --no-observe 10 my-feature
 
-Documentation: https://github.com/BIGDEALIO/ralph-unpossible
+Documentation: https://github.com/jeffwray/ralph-unpossible
 `);
   process.exit(0);
 }

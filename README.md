@@ -225,7 +225,7 @@ npx ralph-unpossible 40 03-dashboard
 ### Running from Source
 
 ```bash
-git clone https://github.com/BIGDEALIO/ralph-unpossible.git
+git clone https://github.com/jeffwray/ralph-unpossible.git
 cd ralph-unpossible
 node bin/cli.js --help
 ```

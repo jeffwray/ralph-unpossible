@@ -27,11 +27,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BIGDEALIO/ralph-unpossible"
+    "url": "https://github.com/jeffwray/ralph-unpossible"
   },
-  "homepage": "https://github.com/BIGDEALIO/ralph-unpossible#readme",
+  "homepage": "https://github.com/jeffwray/ralph-unpossible#readme",
   "bugs": {
-    "url": "https://github.com/BIGDEALIO/ralph-unpossible/issues"
+    "url": "https://github.com/jeffwray/ralph-unpossible/issues"
   },
   "engines": {
     "node": ">=18.0.0"
