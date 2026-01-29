@@ -1,6 +1,6 @@
 {
   "name": "ralph-unpossible",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Autonomous AI coding agent that implements PRD user stories",
   "type": "module",
   "bin": {
