@@ -1,0 +1,45 @@
+{
+  "project": "MyProject",
+  "branchName": "unpossible/feature-name",
+  "baseBranch": "main",
+  "description": "High-level description of this PRD's goals",
+  "userStories": [
+    {
+      "id": "FEAT-001",
+      "title": "First story - foundational work",
+      "priority": 1,
+      "passes": false,
+      "acceptanceCriteria": [
+        "First specific, testable criterion",
+        "Second specific, testable criterion",
+        "Third specific, testable criterion"
+      ],
+      "technicalNotes": "Implementation hints: libraries to use, patterns to follow, files to modify",
+      "testStrategy": "Unit tests for X, integration tests for Y",
+      "progress": {
+        "completedAt": null,
+        "filesChanged": [],
+        "summary": "",
+        "learnings": ""
+      }
+    },
+    {
+      "id": "FEAT-002",
+      "title": "Second story - builds on first",
+      "priority": 2,
+      "passes": false,
+      "acceptanceCriteria": [
+        "Depends on FEAT-001 being complete",
+        "Another testable criterion"
+      ],
+      "technicalNotes": "Can reuse patterns from FEAT-001",
+      "testStrategy": "Integration tests covering the full flow",
+      "progress": {
+        "completedAt": null,
+        "filesChanged": [],
+        "summary": "",
+        "learnings": ""
+      }
+    }
+  ]
+}

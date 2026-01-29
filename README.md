@@ -20,43 +20,35 @@ An autonomous AI agent loop for iterative, PRD-driven development. Spawns fresh 
 
 ## Installation
 
-### Option 1: Clone into your project
+### Quick Start (no install required)
 
 ```bash
 cd your-project
-git clone https://github.com/jeffwray/ralph-unpossible.git scripts/unpossible
-rm -rf scripts/unpossible/.git
+npx ralph-unpossible --init     # One-time setup
+npx ralph-unpossible 5 my-feature   # Run 5 iterations
 ```
 
-### Option 2: Add as a git submodule
+### Global Install
 
 ```bash
-cd your-project
-git submodule add https://github.com/jeffwray/ralph-unpossible.git scripts/unpossible
+npm install -g ralph-unpossible
+unpossible --init
+unpossible 5 my-feature
 ```
 
-### Option 3: Download directly
+### Project Install
 
 ```bash
-cd your-project
-mkdir -p scripts/unpossible
-curl -L https://github.com/jeffwray/ralph-unpossible/archive/main.tar.gz | tar xz --strip-components=1 -C scripts/unpossible
+npm install --save-dev ralph-unpossible
+npx unpossible --init
 ```
 
 ## Setup
 
-```bash
-# Make the script executable
-chmod +x scripts/unpossible/unpossible.sh
-
-# Initialize (creates CLAUDE.md in project root, patterns.txt, prds/ folder)
-./scripts/unpossible/unpossible.sh --init
-```
-
-This creates:
-- `CLAUDE.md` in your project root (tells Claude about Unpossible)
-- `scripts/unpossible/patterns.txt` for codebase patterns
-- `scripts/unpossible/prds/` folder for your PRD files
+After running `--init`, your project will have:
+- `CLAUDE.md` - Agent instructions
+- `prds/example.json` - Example PRD template
+- `patterns.txt` - Codebase patterns file
 
 ## Creating PRDs
 
@@ -82,31 +74,31 @@ claude "Create a PRD for:
 - All components support both themes"
 ```
 
-Claude will automatically create the JSON file in `scripts/unpossible/prds/`.
+Claude will automatically create the JSON file in `prds/`.
 
 ## Running
 
 ```bash
 # Run with default 10 iterations on a PRD
-./scripts/unpossible/unpossible.sh my-feature
+npx ralph-unpossible my-feature
 
 # Run with 50 iterations
-./scripts/unpossible/unpossible.sh 50 my-feature
+npx ralph-unpossible 50 my-feature
 
 # Run multiple PRDs (stories are combined and prioritized)
-./scripts/unpossible/unpossible.sh 30 auth dashboard settings
+npx ralph-unpossible 30 auth dashboard settings
 
 # Run without the web observer
-./scripts/unpossible/unpossible.sh --no-observe 20 my-feature
+npx ralph-unpossible --no-observe 20 my-feature
 
 # Use Amp instead of Claude
-./scripts/unpossible/unpossible.sh --tool amp 20 my-feature
+npx ralph-unpossible --tool amp 20 my-feature
 ```
 
 ## How It Works
 
 1. Define user stories in a PRD JSON file
-2. Run `./unpossible.sh [iterations] [prd-name]`
+2. Run `npx ralph-unpossible [iterations] [prd-name]`
 3. Each iteration:
    - Picks the highest priority incomplete story
    - Writes tests first (TDD)
@@ -184,19 +176,17 @@ The web observer launches automatically at `http://localhost:3456` and provides:
 - Story status tracking
 - Tool usage visualization
 
-Run without observer: `./unpossible.sh --no-observe [args]`
+Run without observer: `npx ralph-unpossible --no-observe [args]`
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `unpossible.sh` | Main runner script |
-| `CLAUDE.md` | Agent instructions |
+| `CLAUDE.md` | Agent instructions (in your project) |
 | `patterns.txt` | Persistent codebase patterns |
-| `quotes.txt` | Ralph Wiggum quotes (displayed on startup) |
 | `progress.txt` | Per-run progress log (created during runs) |
 | `prds/` | PRD files directory |
-| `observer/` | Web UI for monitoring |
+| `.prd-files` | List of PRD files being processed |
 
 ## Tips
 
@@ -225,12 +215,34 @@ Use `baseBranch` to build features incrementally:
 
 Then run in order:
 ```bash
-./unpossible.sh 20 01-foundation
-./unpossible.sh 30 02-auth
-./unpossible.sh 40 03-dashboard
+npx ralph-unpossible 20 01-foundation
+npx ralph-unpossible 30 02-auth
+npx ralph-unpossible 40 03-dashboard
 ```
 
-## Testing
+## Development
+
+### Running from Source
+
+```bash
+git clone https://github.com/BIGDEALIO/ralph-unpossible.git
+cd ralph-unpossible
+node bin/cli.js --help
+```
+
+### Testing Locally
+
+```bash
+# Link for local development
+npm link
+
+# In another project
+unpossible --init
+unpossible 5 my-feature
+
+# Unlink when done
+npm unlink -g ralph-unpossible
+```
 
 ### Unit Tests
 
@@ -240,14 +252,6 @@ Run the test suite (no API calls):
 ./test/run-tests.sh
 ```
 
-Tests verify (47 tests):
-- Quote file and random selection
-- PRD example structure and validation
-- CLAUDE.md instructions
-- Shell script structure
-- Observer server setup
-- Full PRD workflow (create, validate, mark complete)
-
 ### End-to-End Test
 
 Run a real loop with Claude (uses API credits):
@@ -255,13 +259,6 @@ Run a real loop with Claude (uses API credits):
 ```bash
 ./test/e2e-test.sh
 ```
-
-This test:
-1. Creates a temporary project
-2. Initializes Unpossible
-3. Creates a simple PRD (create a text file)
-4. Runs one iteration with Claude
-5. Verifies the task was completed
 
 ## Hat Tip
 

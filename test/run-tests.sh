@@ -45,7 +45,7 @@ assert_file_exists() {
 }
 
 assert_file_contains() {
-  if grep -q "$2" "$1" 2>/dev/null; then
+  if grep -qF -- "$2" "$1" 2>/dev/null; then
     pass "$3"
   else
     fail "$3" "file contains '$2'" "pattern not found in $1"
@@ -87,26 +87,26 @@ echo "========================================"
 echo ""
 
 # --- quotes.txt tests ---
-echo "--- quotes.txt ---"
+echo "--- lib/quotes.txt ---"
 
 test_quotes_file_exists() {
-  assert_file_exists "$ROOT_DIR/quotes.txt" "quotes.txt exists"
+  assert_file_exists "$ROOT_DIR/lib/quotes.txt" "lib/quotes.txt exists"
 }
 
 test_quotes_not_empty() {
-  local count=$(wc -l < "$ROOT_DIR/quotes.txt" | tr -d ' ')
+  local count=$(wc -l < "$ROOT_DIR/lib/quotes.txt" | tr -d ' ')
   if [[ "$count" -gt 10 ]]; then
-    pass "quotes.txt has $count quotes"
+    pass "lib/quotes.txt has $count quotes"
   else
-    fail "quotes.txt has enough quotes" ">10 quotes" "$count quotes"
+    fail "lib/quotes.txt has enough quotes" ">10 quotes" "$count quotes"
   fi
 }
 
 test_quotes_random() {
   # Get 5 random quotes and check they're not all the same
-  local q1=$(shuf -n 1 "$ROOT_DIR/quotes.txt" 2>/dev/null || sort -R "$ROOT_DIR/quotes.txt" | head -1)
-  local q2=$(shuf -n 1 "$ROOT_DIR/quotes.txt" 2>/dev/null || sort -R "$ROOT_DIR/quotes.txt" | head -1)
-  local q3=$(shuf -n 1 "$ROOT_DIR/quotes.txt" 2>/dev/null || sort -R "$ROOT_DIR/quotes.txt" | head -1)
+  local q1=$(shuf -n 1 "$ROOT_DIR/lib/quotes.txt" 2>/dev/null || sort -R "$ROOT_DIR/lib/quotes.txt" | head -1)
+  local q2=$(shuf -n 1 "$ROOT_DIR/lib/quotes.txt" 2>/dev/null || sort -R "$ROOT_DIR/lib/quotes.txt" | head -1)
+  local q3=$(shuf -n 1 "$ROOT_DIR/lib/quotes.txt" 2>/dev/null || sort -R "$ROOT_DIR/lib/quotes.txt" | head -1)
 
   # At least one should be different (statistically almost certain with 25 quotes)
   if [[ "$q1" != "$q2" ]] || [[ "$q2" != "$q3" ]]; then
@@ -232,30 +232,55 @@ test_claude_md_exists
 test_claude_md_has_prd_instructions
 test_claude_md_has_tdd_instructions
 
-# --- unpossible.sh tests ---
+# --- lib/unpossible.sh tests ---
 echo ""
-echo "--- unpossible.sh ---"
+echo "--- lib/unpossible.sh ---"
 
 test_script_executable() {
-  if [[ -x "$ROOT_DIR/unpossible.sh" ]]; then
-    pass "unpossible.sh is executable"
+  if [[ -x "$ROOT_DIR/lib/unpossible.sh" ]]; then
+    pass "lib/unpossible.sh is executable"
   else
-    fail "unpossible.sh executable" "executable" "not executable"
+    fail "lib/unpossible.sh executable" "executable" "not executable"
   fi
 }
 
 test_script_has_shebang() {
-  local first_line=$(head -1 "$ROOT_DIR/unpossible.sh")
-  assert_equals "$first_line" "#!/bin/bash" "unpossible.sh has bash shebang"
+  local first_line=$(head -1 "$ROOT_DIR/lib/unpossible.sh")
+  assert_equals "$first_line" "#!/bin/bash" "lib/unpossible.sh has bash shebang"
 }
 
 test_script_has_quote_function() {
-  assert_file_contains "$ROOT_DIR/unpossible.sh" "show_quote" "unpossible.sh has show_quote function"
+  assert_file_contains "$ROOT_DIR/lib/unpossible.sh" "show_quote" "lib/unpossible.sh has show_quote function"
 }
 
 test_script_executable
 test_script_has_shebang
 test_script_has_quote_function
+
+# --- bin/cli.js tests ---
+echo ""
+echo "--- bin/cli.js ---"
+
+test_cli_executable() {
+  if [[ -x "$ROOT_DIR/bin/cli.js" ]]; then
+    pass "bin/cli.js is executable"
+  else
+    fail "bin/cli.js executable" "executable" "not executable"
+  fi
+}
+
+test_cli_has_shebang() {
+  local first_line=$(head -1 "$ROOT_DIR/bin/cli.js")
+  assert_equals "$first_line" "#!/usr/bin/env node" "bin/cli.js has node shebang"
+}
+
+test_cli_has_init_handler() {
+  assert_file_contains "$ROOT_DIR/bin/cli.js" "--init" "bin/cli.js handles --init"
+}
+
+test_cli_executable
+test_cli_has_shebang
+test_cli_has_init_handler
 
 # --- observer tests ---
 echo ""
@@ -295,10 +320,12 @@ test_init_creates_files() {
   cd "$TEST_TMP"
   git init -q
 
-  # Run --init
-  "$ROOT_DIR/unpossible.sh" --init > /dev/null 2>&1 || true
+  # Run --init using the CLI
+  node "$ROOT_DIR/bin/cli.js" --init > /dev/null 2>&1 || true
 
   assert_file_exists "$TEST_TMP/CLAUDE.md" "--init creates root CLAUDE.md"
+  assert_file_exists "$TEST_TMP/patterns.txt" "--init creates patterns.txt"
+  assert_file_exists "$TEST_TMP/prds/example.json" "--init creates prds/example.json"
 
   cd - > /dev/null
   teardown
@@ -564,25 +591,22 @@ test_script_shows_quote_on_run() {
   cd "$TEST_TMP"
   git init -q
 
-  # Copy unpossible to simulate installation
-  mkdir -p scripts
-  cp -r "$ROOT_DIR" scripts/unpossible
+  # Run init using CLI
+  node "$ROOT_DIR/bin/cli.js" --init > /dev/null 2>&1 || true
 
-  # Run init
-  scripts/unpossible/unpossible.sh --init > /dev/null 2>&1 || true
-
-  # Create a test PRD in the right place
-  cat > scripts/unpossible/prds/test.json << 'EOF'
+  # Create a test PRD in the project
+  cat > prds/test.json << 'EOF'
 {"project":"T","branchName":"t/t","userStories":[{"id":"T","title":"T","priority":1,"passes":false,"acceptanceCriteria":["x"]}]}
 EOF
 
   # Run and capture output (will fail since no claude, but should show quote)
-  local output=$(scripts/unpossible/unpossible.sh --no-observe 1 test 2>&1 || true)
+  # We need to set UNPOSSIBLE_HOME for the script to find quotes.txt
+  local output=$(UNPOSSIBLE_HOME="$ROOT_DIR" bash "$ROOT_DIR/lib/unpossible.sh" --no-observe 1 test 2>&1 || true)
 
   if echo "$output" | grep -q "Ralph Wiggum"; then
     pass "script shows Ralph quote on startup"
   else
-    fail "script shows quote" "contains 'Ralph Wiggum'" "quote not found in: $output"
+    fail "script shows quote" "contains 'Ralph Wiggum'" "quote not found"
   fi
 
   cd - > /dev/null

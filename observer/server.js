@@ -11,7 +11,11 @@ import { spawn, exec } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UNPOSSIBLE_DIR = path.resolve(__dirname, '..');
+
+// Resolve paths based on whether running from npm package or directly
+const PACKAGE_DIR = process.env.UNPOSSIBLE_HOME || path.resolve(__dirname, '..');
+const PROJECT_DIR = process.cwd();
+const SCRIPT_DIR = process.env.UNPOSSIBLE_HOME ? path.join(process.env.UNPOSSIBLE_HOME, 'lib') : PACKAGE_DIR;
 const PORT = process.env.PORT || 3456;
 
 const clients = new Set();
@@ -132,10 +136,10 @@ function startUnpossible(args) {
 
   broadcast('state', unpossibleState);
 
-  const unpossibleScript = path.join(UNPOSSIBLE_DIR, 'unpossible.sh');
+  const unpossibleScript = path.join(SCRIPT_DIR, 'unpossible.sh');
   unpossibleProcess = spawn('bash', [unpossibleScript, '--worker', ...args], {
-    cwd: UNPOSSIBLE_DIR,
-    env: { ...process.env, FORCE_COLOR: '1' }
+    cwd: PROJECT_DIR,
+    env: { ...process.env, FORCE_COLOR: '1', UNPOSSIBLE_HOME: PACKAGE_DIR }
   });
 
   unpossibleProcess.stdout.on('data', (data) => {
@@ -175,7 +179,7 @@ function stopUnpossible() {
 }
 
 async function getPRDInfo() {
-  const prdFilesPath = path.join(UNPOSSIBLE_DIR, '.prd-files');
+  const prdFilesPath = path.join(PROJECT_DIR, '.prd-files');
   try {
     const content = fs.readFileSync(prdFilesPath, 'utf-8');
     const files = content.trim().split('\n').filter(Boolean);
